@@ -65,9 +65,10 @@ public class PlayerController : MonoBehaviour
         float a_TurnVelocity = 0;
         if (l_isMoving)
         {
-            Vector3 newForward = Vector3.SmoothDamp(transform.forward, l_Movement, ref l_velocity, smoothTimeRotate, maxRotationSpeed);
+            a_TurnVelocity = Vector3.Angle(transform.forward, l_Movement);
+            Vector3 newForward = Vector3.SmoothDamp(transform.forward, l_Movement, ref l_velocity, a_TurnVelocity/smoothTimeRotate, maxRotationSpeed);
             a_TurnVelocity = Vector3.Angle(transform.forward, newForward);
-            animator.SetBool("MirrorTurn", !(Vector3.Cross(transform.forward, newForward).y < 0));
+            animator.SetBool("MirrorTurn", !(Vector3.Cross(transform.forward, newForward).y < 0));          // !(Vector3.Cross(transform.forward, newForward).y < 0)
             transform.forward = newForward;
             
         }
