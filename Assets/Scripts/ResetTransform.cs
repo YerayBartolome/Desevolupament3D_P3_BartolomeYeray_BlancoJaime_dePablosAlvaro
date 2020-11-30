@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class ResetTransform : MonoBehaviour
 {
-    [SerializeField] Transform initialTransform;
+    [SerializeField] protected Transform initialTransform;
 
-    Vector3 initPos;
-    Quaternion initRot;
+    protected Vector3 initPos;
+    protected Quaternion initRot;
 
     void Start()
     {

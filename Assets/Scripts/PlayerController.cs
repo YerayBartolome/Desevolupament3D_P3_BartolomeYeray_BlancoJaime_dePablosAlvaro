@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     Animator animator;
     CharacterController characterController;
+    PlayerResetTransform playerResetTransform;
+
     [SerializeField] Transform cam;
     [SerializeField] float speedMultiplier = 3f;
     [SerializeField] float speed = 2.3f;
@@ -25,10 +27,17 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
+        playerResetTransform = GetComponent<PlayerResetTransform>();
     }
     float l_up = 0f;
 
     private Vector3 currentMovement = Vector3.zero; //Stores CharacterController absolute movement deltas at the end of each fixed frame;
+
+    public void setCheckPoint(CheckPoint newCheckPoint)
+    {
+        //player checkPoints implementation
+        playerResetTransform.setCheckPoint(newCheckPoint);
+    }
 
     
     void FixedUpdate()
