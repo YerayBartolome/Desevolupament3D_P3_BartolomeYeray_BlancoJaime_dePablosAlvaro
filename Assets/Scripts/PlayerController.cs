@@ -132,26 +132,31 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (characterController.isGrounded) l_up = 0f;
+        if (characterController.isGrounded)
+        {
+            l_up = 0f;
+            animator.ResetTrigger("NormalJump");
+            animator.ResetTrigger("TripleJump");
+            animator.ResetTrigger("DoubleJump");
+        }
         if (Input.GetKey(KeyCode.Space) && characterController.isGrounded)
         {
-
 
             switch (NextJump)
             {
                 case Jump.Normal:
-                    l_up += jumpForce;
-                    Debug.Log("Normal jump");
+                    l_up += jumpForce * Time.fixedDeltaTime;
+                    animator.SetTrigger("NormalJump");
                     NextJump = Jump.Double;
                     break;
                 case Jump.Double:
-                    l_up += jumpForce2;
-                    Debug.Log("Double jump");
+                    l_up += jumpForce * Time.fixedDeltaTime;
+                    animator.SetTrigger("DoubleJump");
                     NextJump = Jump.Triple;
                     break;
                 case Jump.Triple:
-                    l_up += jumpForce3;
-                    Debug.Log("Triple jump");
+                    l_up += jumpForce3 * Time.fixedDeltaTime;
+                    animator.SetTrigger("TripleJump");
                     NextJump = Jump.Normal;
                     break;
             }
@@ -159,16 +164,15 @@ public class PlayerController : MonoBehaviour
 
         l_up -= gravity * Time.fixedDeltaTime;
 
-
+        currentMovement = Vector3.SmoothDamp(currentMovement, l_Movement * Time.fixedDeltaTime, ref velocity, smoothTimeMove);
+      
         currentMovement.y = l_up;
 
-        currentMovement = Vector3.SmoothDamp(currentMovement, l_Movement * Time.fixedDeltaTime, ref velocity, smoothTimeMove);
-        
         characterController.Move(currentMovement);
         Vector3 translationalMovement = new Vector3(currentMovement.x, 0, currentMovement.z);
         animator.SetFloat("Speed", (translationalMovement.magnitude / (speed * speedMultiplier)) / 0.02f);
+        animator.SetFloat("VerticalSpeed", l_up);
         animator.SetFloat("TurnSpeed", a_TurnVelocity);
-        animator.SetInteger("JumpsAvailable", jumpsAvailable);
     }
 
 
