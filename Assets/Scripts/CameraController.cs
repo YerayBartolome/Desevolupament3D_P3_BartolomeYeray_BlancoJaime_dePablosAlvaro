@@ -12,16 +12,19 @@ public class CameraController : MonoBehaviour
     bool m_CursorLocked = true;
 
     [SerializeField] Transform m_LookAt;
+    [SerializeField] float m_offset = 1f;
     [SerializeField] float m_YawSpeed, m_PitchSpeed, m_MinPitch = -45.0f, m_MaxPitch = 75.0f, m_MinDistance, m_MaxDistance;
     [SerializeField]
     LayerMask m_LayerMask;
     [SerializeField]
     float m_AvoidObstacleOffset;
+    Vector3 m_offsetVector;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         m_CursorLocked = true;
+        m_offsetVector = new Vector3( 0, m_offset);
     }
     void OnApplicationFocus()
     {
@@ -47,7 +50,7 @@ public class CameraController : MonoBehaviour
         float l_MouseAxisX = Input.GetAxis("Mouse X");
         float l_MouseAxisY = Input.GetAxis("Mouse Y");
 
-        Vector3 l_Direction = m_LookAt.position - transform.position;
+        Vector3 l_Direction = m_LookAt.position - transform.position + m_offsetVector;
         float l_Distance = l_Direction.magnitude;
 
         Vector3 l_DesiredPosition = transform.position;
@@ -74,11 +77,11 @@ public class CameraController : MonoBehaviour
             //Update values
 
 
-            l_DesiredPosition = m_LookAt.position + new Vector3(
+            l_DesiredPosition = m_LookAt.position + m_offsetVector + new Vector3(
                 Mathf.Sin(l_Yaw) * Mathf.Cos(l_Pitch) * l_Distance,
                 Mathf.Sin(l_Pitch) * l_Distance,
                 Mathf.Cos(l_Yaw) * Mathf.Cos(l_Pitch) * l_Distance);
-            l_Direction = m_LookAt.position - l_DesiredPosition;
+            l_Direction = m_LookAt.position + m_offsetVector - l_DesiredPosition;
 
         }
 
@@ -87,10 +90,10 @@ public class CameraController : MonoBehaviour
         if (l_Distance > m_MaxDistance || l_Distance < m_MinDistance)
         {
             l_Distance = Mathf.Clamp(l_Distance, m_MinDistance, m_MaxDistance);
-            l_DesiredPosition = m_LookAt.position - l_Direction * l_Distance;
+            l_DesiredPosition = m_LookAt.position + m_offsetVector - l_Direction * l_Distance;
         }
 
-        Ray l_ray = new Ray(m_LookAt.position, -l_Direction);
+        Ray l_ray = new Ray(m_LookAt.position + m_offsetVector, -l_Direction);
         if (Physics.Raycast(l_ray, out RaycastHit l_hit, l_Distance, m_LayerMask))
         {
             l_DesiredPosition = l_hit.point + m_AvoidObstacleOffset * l_Direction;
