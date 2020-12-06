@@ -14,13 +14,28 @@ public class UIController : MonoBehaviour
 
     private int currentPower = 0;
 
+    private bool dead = false;
     private void Awake()
     {
         UIanim.SetBool("Show", false);
+        UIanim.SetBool("Death", false);
     }
 
     private void Update()
     {
+        
+        if (Input.GetKeyDown(KeyCode.X) && !dead) {
+            UIanim.SetBool("Death", true);
+            dead = true;
+        }
+
+        if (dead && Input.GetKeyDown(KeyCode.R))
+        {
+            m_GameManager.RestartGame();
+            UIanim.SetBool("Death", false);
+            dead = false;
+        }
+
         if (currentPower != m_GameManager.Power) UIanim.SetBool("Show", true);
         else UIanim.SetBool("Show", false);
         currentPower = m_GameManager.Power;
@@ -30,5 +45,6 @@ public class UIController : MonoBehaviour
         float newFill = (1 - ((float)m_GameManager.Power / 8f)) - 0.125f * (float)Mathf.Round(Time.time % 1);
 
         m_powerDisplay.fillAmount = newFill;
+
     }
 }
