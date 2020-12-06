@@ -9,6 +9,13 @@ public class CollisionController : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if (hit.gameObject.layer == LayerMask.NameToLayer("Item"))
+        {
+            ItemInterface item = (ItemInterface)hit.gameObject.GetComponent(typeof(ItemInterface));
+            item.get();
+            return;
+        }
+
         Rigidbody body = hit.collider.attachedRigidbody;
 
 
@@ -19,5 +26,7 @@ public class CollisionController : MonoBehaviour
         {
             body.AddForceAtPosition(Vector3.down * pushPower, hit.point);
         }
+
+        
     }
 }
