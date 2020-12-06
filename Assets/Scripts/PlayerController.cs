@@ -16,12 +16,30 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float maxRotationSpeed = 20f;
     [SerializeField] float maxAcceleration = 250f;
     [SerializeField] float timeScale = 1f;
-    [SerializeField] float gravity = 9.8f;
+    [SerializeField] float gravity = 1.5f;
     [SerializeField] int maxJumps = 3;
-    [SerializeField] float jumpForce = 20f;
-    
+    [SerializeField] float jumpForce = 0.5f;
+    [SerializeField] float jumpForce2 = 0.6f;
+    [SerializeField] float jumpForce3 = 0.7f;
+    [SerializeField] float timeUntilResetJump = 1f;
+
+
     //private bool canJump = false;
     private int jumpsAvailable = 0;
+    float l_up = 0f;
+    float landTime = -1f;
+
+    enum Jump
+    {
+        Normal,
+        Double,
+        Triple
+    }
+
+    Jump currentJump;
+    Jump NextJump = Jump.Normal;
+    bool justJumped = false;
+    bool spacePressed = false;
 
     private void Awake()
     {
@@ -29,7 +47,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         playerResetTransform = GetComponent<PlayerResetTransform>();
     }
-    float l_up = 0f;
+    
 
     private Vector3 currentMovement = Vector3.zero; //Stores CharacterController absolute movement deltas at the end of each fixed frame;
 
@@ -39,7 +57,8 @@ public class PlayerController : MonoBehaviour
         playerResetTransform.setCheckPoint(newCheckPoint);
     }
 
-    
+
+
     void FixedUpdate()
     {
         Vector3 l_Movement = Vector3.zero;
@@ -93,33 +112,64 @@ public class PlayerController : MonoBehaviour
         {
             currentSpeedMultiplier = speedMultiplier;
         }
-        Vector3 velocity = Vector3.zero;
+        Vector3 velocity = currentMovement;
 
         
 
         l_Movement *= speed * currentSpeedMultiplier;
 
-        if (characterController.isGrounded)
+        
+
+        if (!characterController.isGrounded) justJumped = true;
+        if(justJumped && characterController.isGrounded)
         {
-            l_up = 0f;
-            jumpsAvailable = maxJumps;
-            
+            if (landTime < 0f) landTime = Time.time;
+            else if (landTime + timeUntilResetJump <= Time.time)
+            {
+                NextJump = Jump.Normal;
+                landTime = -1f;
+                
+            }
         }
-        if (Input.GetKeyDown(KeyCode.Space) && jumpsAvailable > 0)
+
+        if (characterController.isGrounded) l_up = 0f;
+        if (Input.GetKey(KeyCode.Space) && characterController.isGrounded)
         {
-            l_up = jumpForce * Time.fixedDeltaTime;
-            jumpsAvailable--;
+
+
+            switch (NextJump)
+            {
+                case Jump.Normal:
+                    l_up += jumpForce;
+                    Debug.Log("Normal jump");
+                    NextJump = Jump.Double;
+                    break;
+                case Jump.Double:
+                    l_up += jumpForce2;
+                    Debug.Log("Double jump");
+                    NextJump = Jump.Triple;
+                    break;
+                case Jump.Triple:
+                    l_up += jumpForce3;
+                    Debug.Log("Triple jump");
+                    NextJump = Jump.Normal;
+                    break;
+            }
         }
 
         l_up -= gravity * Time.fixedDeltaTime;
 
-        l_Movement.y = l_up;
 
-        currentMovement = Vector3.SmoothDamp(currentMovement, l_Movement * Time.fixedDeltaTime, ref velocity, smoothTimeMove, maxAcceleration);
+        currentMovement.y = l_up;
+
+        currentMovement = Vector3.SmoothDamp(currentMovement, l_Movement * Time.fixedDeltaTime, ref velocity, smoothTimeMove);
+        
         characterController.Move(currentMovement);
         Vector3 translationalMovement = new Vector3(currentMovement.x, 0, currentMovement.z);
         animator.SetFloat("Speed", (translationalMovement.magnitude / (speed * speedMultiplier)) / 0.02f);
         animator.SetFloat("TurnSpeed", a_TurnVelocity);
         animator.SetInteger("JumpsAvailable", jumpsAvailable);
     }
+
+
 }
