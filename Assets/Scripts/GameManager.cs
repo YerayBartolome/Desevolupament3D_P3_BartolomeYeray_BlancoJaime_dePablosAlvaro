@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] public int lifes = 3;
-    private int power = 8;
+    [SerializeField] private int power = 8;
     private int coins = 0;
 
     public delegate void RestartGameDelegate();
@@ -26,12 +26,12 @@ public class GameManager : MonoBehaviour
     public void plusPower(int n)
     {
         if (power + n >= 8) power = 8;
-        if (power + n <= 0)
+        else if (power + n <= 0)
         {
             power = 0;
             Die();
         }
-        power += n;
+        else power += n;
     }
 
     public int Coins

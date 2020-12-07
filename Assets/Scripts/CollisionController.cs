@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CollisionController : MonoBehaviour
 {
-
+    [SerializeField] GameManager gameManager;
     [SerializeField] float pushPower = 2;
 
     void OnControllerColliderHit(ControllerColliderHit hit)
@@ -18,6 +18,13 @@ public class CollisionController : MonoBehaviour
 
         Rigidbody body = hit.collider.attachedRigidbody;
 
+        if (hit.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            Debug.Log("Enemy");
+            EnemyInterface enemy = (EnemyInterface)hit.gameObject.GetComponent(typeof(EnemyInterface));
+            int dmg = enemy.getEnemyDamage();
+            gameManager.plusPower(-dmg);
+        }
 
         if (body == null || body.isKinematic) { return; }
 
@@ -26,6 +33,8 @@ public class CollisionController : MonoBehaviour
         {
             body.AddForceAtPosition(Vector3.down * pushPower, hit.point);
         }
+
+
 
         
     }
